@@ -1,2 +1,3 @@
 # zhilianResume
-用于提取智联招聘简历信息，以进一步实现批量化处理、分析的模块。
+
+* 中文版本请查看：[README_CHS.md](https://github.com/Guo-Yunzhe/zhilianResume/blob/master/README_CHS.md)。
