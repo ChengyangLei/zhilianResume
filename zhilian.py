@@ -67,6 +67,8 @@ def find_zhilian_intention(input_content):
 	if not items == []:
 		pending_content = items[0]
 	else:
+		# return ['该用户没有填写“求职意向”栏目。'] 
+		# \-> 此处发现一个以前写的bug，现在不返回，返回字符串
 		return ['该用户没有填写“求职意向”栏目。']
 	# print pending_content
 	# pending_content 变量中存储的就是求职意向的内容，现在再从这里面抠出小块的的内容
@@ -132,7 +134,61 @@ def find_zhilian_work_experience(input_content):
 	# 我发现项目经历那里，也可以用<h2>到</table>这种方式来匹配！-> 3/10/2016
 	list_of_experience = re.findall(pattern,pending_content)
 	# print len(list_of_experience) ＃代表有几段个人经历
-	print list_of_experience[0]
+	# print list_of_experience[0]
+	for each_experience in list_of_experience:
+		# 找 <h2>
+		tmp_pattern = re.compile('<h2>(.*?)</h2>',re.S)
+		tmp_items = re.findall(tmp_pattern,each_experience)
+		final_str += (tmp_items[0].replace('&nbsp;',' ') + '\n')
+		# 找 <h5>
+		tmp_pattern = re.compile('<h5>(.*?)</h5>',re.S)
+		tmp_items = re.findall(tmp_pattern,each_experience)
+		final_str += (tmp_items[0].replace('&nbsp;',' ') + '\n')
+		# 找 工作描述
+		final_str += '工作描述：\n'
+		tmp_pattern = re.compile('工作描述.*?<td>(.*?)</td>',re.S)
+		tmp_items = re.findall(tmp_pattern,each_experience)
+		tmp_str = tmp_items[0].replace('<br />','\n')
+		final_str += (tmp_str.replace('&nbsp;',' ') + '\n\n')
+	# print final_str
+	return final_str[:-2]
+	pass
+
+
+def find_zhilian_project_experience(input_content):
+	# 本函数来查找项目经历的内容
+	# 并不是每份简历中，都有项目经历的内容
+	# 思路也是先挖出大块，再找小块，和上面的一样 -> 3/22/2016
+	final_str = ''
+	pattern = re.compile('项目经历</h3>.*?<div class="resume-preview-all">',re.S)
+	items = re.findall(pattern,input_content)
+	if not items == []:
+		pending_content = items[0]
+	else:
+		return '该用户没有填写“项目经历”栏目。'
+	# print pending_content
+	pattern = re.compile('<h2>.*?</table>',re.S)
+	list_of_experience = re.findall(pattern,pending_content)
+	# print list_of_experience[5] # For Test
+	# len(list_of_experience) -> 代表有几段个人经历
+	for each_experience in list_of_experience:
+		# 找 <h2>
+		tmp_pattern = re.compile('<h2>(.*?)</h2>',re.S)
+		tmp_items = re.findall(tmp_pattern,each_experience)
+		final_str += (tmp_items[0].replace('&nbsp;',' ') + '\n')
+		# 找 责任描述
+		tmp_pattern = re.compile('责任描述.*?</td>.*?<td>(.*?)</td>',re.S)
+		tmp_items = re.findall(tmp_pattern,each_experience)
+		final_str += '责任描述：\n'
+		final_str += (tmp_items[0].replace('&nbsp;',' ') + '\n')
+		# 找 项目描述
+		tmp_pattern = re.compile('项目描述.*?</td>.*?<td>(.*?)</td>',re.S)
+		tmp_items = re.findall(tmp_pattern,each_experience)
+		final_str += '项目描述：\n'
+		tmp_str = tmp_items[0].replace('<br />','\n')
+		final_str += (tmp_str.replace('&nbsp;',' ') + '\n\n')
+	# print final_str
+	return final_str[:-2]
 	pass
 
 
@@ -143,17 +199,21 @@ def main():
 	resume_update_time = find_zhilian_update_time(html_content)
 	intention = find_zhilian_intention(html_content)
 	self_evaluation =find_zhilian_self_evaluation(html_content)
-
-	# 这里是测试板块
-	find_zhilian_work_experience(html_content)
+	work_experience = find_zhilian_work_experience(html_content)
+	project_experience = find_zhilian_project_experience(html_content)
 
 	#下面是打印到屏幕的部分
 	print '简历ID：\n'+resume_ID 
 	print '\n个人信息：\n'+person_INFO
 	print '\n简历更新时间：\n' + resume_update_time
 	print '\n求职意向:\n' + intention
-	print '\n自我评价：\n'+self_evaluation
+	print '\n自我评价：\n'+ self_evaluation
+	print '\n工作经历：\n' + work_experience
+	print '\n项目经历：\n' + project_experience
 
+	# 这里是测试板块
+	
+	
 
 
 
