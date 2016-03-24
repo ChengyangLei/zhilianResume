@@ -191,11 +191,30 @@ def find_zhilian_project_experience(input_content):
 	# print final_str
 	return final_str[:-2]
 	pass
+def write_to_zhilianTest(resume_ID,person_INFO,resume_update_time,intention,self_evaluation,work_experience,project_experien\
+ce):
+	parameter = (resume_ID,person_INFO,resume_update_time,intention,self_evaluation,work_experience,project_experience)
+	conn = MySQLdb.connect('localhost','root','pass','test')
+	cursor = conn.cursor()
+	cursor.execute("INSERT INTO `test`.`zhilianTest` (`name`, `ID_no`, `email_private`, `email_work`, `mobile`, `resume_ID`,\
+ `person_INFO`, `resume_update_time`, `intention`, `self_evaluation`, `work_experience`, `project_experience`) VALUES (NULL,\
+ NULL, NULL, NULL, NULL, %s, %s, %s, %s, %s, %s, %s)" % parameter)
+	cursor.close()
+	conn.commit()
+	conn.close()
 
+def read_zhilian_db():
+	conn = MySQLdb.connect('localhost','root','pass','test',charset="utf8")
+	cursor = conn.cursor()
+	cursor.execute("select * from zhilianTest")
+	data = cursor.fetchall()
+	for i in data:
+		for j in i:
+			print j
 
 
 def main():
-	html_content = open_html_file('example/5.html')
+	html_content = open_html_file('../example/5.html')
 	resume_ID = find_zhilian_ID(html_content)
 	person_INFO = find_zhilian_personal_INFO(html_content)
 	resume_update_time = find_zhilian_update_time(html_content)
@@ -213,8 +232,15 @@ def main():
 	print '\n工作经历：\n' + work_experience
 	print '\n项目经历：\n' + project_experience
 
-	# 该模块基本完成，下一步将是加入MySQL操作，和封装成class -> 3/24/2016
-	
+	# 这里是测试板块
+
+
+	# 先是把数据写入数据库
+	write_to_zhilianTest(resume_ID,person_INFO,resume_update_time,intention,self_evaluation,work_experience,project_ex\
+perience)
+
+	# 读数据库，逐项打印，亲测可用
+	read_zhilian_db() 
 	
 
 
